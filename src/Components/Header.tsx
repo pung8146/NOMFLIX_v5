@@ -141,6 +141,7 @@ function Header() {
   const onValid = (data: IForm) => {
     history.push(`/search?keyword=${data.keyword}`);
   };
+  
   return (
     <Nav variants={navVariants} animate={navAnimation} initial={"top"}>
       <Col>

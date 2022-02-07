@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
 import styled from "styled-components";
 import { motion, AnimatePresence, useViewportScroll } from "framer-motion";
-import { getMovies, IGetMoviesResult } from "./api";
+import { nowMovies, topMovies, latestMovies, IGetMoviesResult } from "./api";
 import { makeImagePath } from "../utils";
 import { useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
@@ -9,6 +9,7 @@ import { useHistory, useRouteMatch } from "react-router-dom";
 const Wrapper = styled.div`
   background: black;
   padding-bottom: 200px;
+  overflow-x:hidden;
 `;
 
 const Loader = styled.div`
@@ -41,7 +42,7 @@ const Overview = styled.p`
 
 const Slider = styled.div`
   position: relative;
-  top: -100px;
+  /* top: -100px; */
 `;
 
 const Row = styled(motion.div)`
@@ -169,8 +170,8 @@ function Home() {
   const bigMovieMatch = useRouteMatch<{ movieId: string }>("/movies/:movieId");
   const { scrollY } = useViewportScroll();
   const { data, isLoading } = useQuery<IGetMoviesResult>(
-    ["movies", "nowPlaying"],
-    getMovies
+    ["movies", "nowPlaying" , "top_rated" , "latest"],
+    topMovies
   );
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
@@ -204,8 +205,42 @@ function Home() {
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
-          <Slider>
+          <Slider style={{top: -120}}>
             <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+            <h3>Top Playing</h3>
+              <Row
+                variants={rowVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ type: "tween", duration: 1 }}
+                key={index}
+              >
+                {data?.results
+                  .slice(1)
+                  .slice(offset * index, offset * index + offset)
+                  .map((movie) => (
+                    <Box
+                      layoutId={movie.id + ""}
+                      key={movie.id}
+                      whileHover="hover"
+                      initial="normal"
+                      variants={boxVariants}
+                      onClick={() => onBoxClicked(movie.id)}
+                      transition={{ type: "tween" }}
+                      bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
+                    >
+                      <Info variants={infoVariants}>
+                        <h4>{movie.title}</h4>
+                      </Info>
+                    </Box>
+                  ))}
+              </Row>
+            </AnimatePresence>
+          </Slider>
+          <Slider style={{top: 130}}>
+            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+            <h3>test</h3>
               <Row
                 variants={rowVariants}
                 initial="hidden"
